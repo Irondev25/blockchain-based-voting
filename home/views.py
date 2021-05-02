@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 from django.contrib import messages
 from django.conf import settings
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Voters, PoliticalParty, Vote, VoteBackup, Block, MiningInfo
 from .methods_module import send_email_otp, generate_keys, verify_vote, send_email_private_key, vote_count
@@ -22,9 +23,10 @@ def home(request):
     return render(request, 'home.html')
 
 # --------------- Authentication -------------------
+@csrf_exempt
 def authentication(request):
 
-    aadhar_no = request.GET.get('aadhar_no')
+    aadhar_no = request.POST.get('aadhar_no')
 
     details = {'success': False}
     
@@ -106,11 +108,12 @@ def get_parties(request):
     return JsonResponse(party_list)
 
 # ------------- Save vote in database ------------------------
+@csrf_exempt
 def create_vote(request):
 
     uuid = request.session['uuid']
 
-    private_key = request.GET.get('private-key')
+    private_key = request.POST.get('private-key')
     public_key = request.session['public-key']
 
     selected_party_id = request.GET.get('selected-party-id')
